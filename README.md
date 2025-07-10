@@ -26,12 +26,14 @@ A powerful, customizable iOS camera-based document scanner designed specifically
 Add this to your `Package.swift` or via Xcode's **File > Add Packages...**:
 
 ```swift
-.package(url: "https://github.com/your-username/DocumentScannerViewController.git", from: "1.0.0")
+.package(url: "https://github.com/botirjon/BNDocumentScanner.git", from: "1.0.0")
+```
 
 Then import it:
 
 ```swift
-import DocumentScannerViewController
+import BNDocumentScanner
+```
 
 ## Usage
 
