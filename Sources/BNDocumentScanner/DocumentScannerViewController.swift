@@ -11,17 +11,55 @@ import Vision
 import AudioToolbox
 import Combine
 
-
+/// Delegate protocol for handling document scanning results
 public protocol DocumentScannerViewControllerDelegate: AnyObject {
+    /// Called when a document is successfully scanned and processed
+    /// - Parameters:
+    ///   - controller: The document scanner view controller
+    ///   - result: The scan result containing the processed image and extracted text
     func documentScanner(_ controller: DocumentScannerViewController, didScanWithResult result: DocumentScannerViewController.Result)
 }
 
+/// A view controller that provides real-time document scanning capabilities using the device's camera.
+/// Combines computer vision technologies to detect document boundaries, perform perspective correction,
+/// and extract text from captured documents.
+///
+/// ## Features:
+/// - Real-time document detection using Vision framework
+/// - Perspective correction for skewed documents
+/// - Text recognition with support for multiple languages (English, Uzbek, Russian)
+/// - Visual feedback with customizable mask overlay
+/// - Document validation with configurable validation rules
+/// - Automatic capture when document meets validation criteria
+///
+/// ## Usage:
+/// ```swift
+/// let maskView = PassportMaskView(aspectRatio: 1.6)
+/// let scanner = DocumentScannerViewController(
+///     maskView: maskView,
+///     instructionProvider: "Position document within the frame"
+/// )
+/// scanner.delegate = self
+/// present(scanner, animated: true)
+/// ```
 open class DocumentScannerViewController: UIViewController {
     
+    /// Result structure containing the processed document image and extracted text
     public struct Result {
+        /// The processed and cropped document image with perspective correction applied
         public let image: UIImage
+        /// Array of text strings extracted from the document using OCR
         public let readings: [String]
     }
+    
+    /// Validation closure type that determines if scanned readings are acceptable
+    /// - Parameter readings: Array of text strings extracted from the document
+    /// - Returns: Boolean indicating whether the readings pass validation
+    public typealias Validator = ([String]) -> Bool
+    
+    /// Result handler closure type for processing scan results
+    /// - Parameter result: The scan result containing image and text data
+    public typealias ResultHandler = (DocumentScannerViewController.Result) -> Void
     
     private let session = AVCaptureSession()
     private var previewLayer: AVCaptureVideoPreviewLayer!
@@ -29,14 +67,6 @@ open class DocumentScannerViewController: UIViewController {
     
     private let sessionQueue = DispatchQueue(label: "sessionQueue", qos: .background)
     private let didReadQueue = DispatchQueue(label: "didReadQueue", attributes: .concurrent)
-    
-//    private lazy var cancelButton: UIButton = {
-//        let button = UIButton.init(primaryAction: .init(title: "Canceling".localized, handler: { [weak self] _ in
-//            self?.cancelButtonTapped()
-//        }))
-//        button.tintColor = .white
-//        return button
-//    }()
     
     private lazy var previewView: UIView = {
         let view = UIView()
@@ -77,12 +107,6 @@ open class DocumentScannerViewController: UIViewController {
     
     private let maskView: DocumentMaskView
     private let instructionProvider: () -> String
-    
-    public typealias Validator = ([String]) -> Bool
-    public typealias ResultHandler = (DocumentScannerViewController.Result) -> Void
-    open var validator: Validator?
-    open var resultHandler: ResultHandler?
-    
     private var cancellables = Set<AnyCancellable>()
     private let documentBoundedSubject = CurrentValueSubject<Bool, Never>(false)
     private var maskViewHeightConstraint: NSLayoutConstraint!
@@ -92,8 +116,19 @@ open class DocumentScannerViewController: UIViewController {
         set { documentBoundedSubject.send(newValue) }
     }
     
+    
+    /// Optional validation closure for determining if scanned readings are acceptable
+    open var validator: Validator?
+    /// Optional result handler closure called when document is successfully scanned
+    open var resultHandler: ResultHandler?
+    /// Delegate for handling scan results
     open weak var delegate: DocumentScannerViewControllerDelegate?
     
+    /// Initializes the document scanner with required components
+    /// - Parameters:
+    ///   - maskView: Custom view that defines the document capture area
+    ///   - instructionProvider: Autoclosure that returns instruction text for users
+    ///   - validate: Optional validation closure for captured text
     public init(maskView: DocumentMaskView, instructionProvider: @escaping @autoclosure () -> String, validate: Validator? = nil) {
         self.maskView = maskView
         self.instructionProvider = instructionProvider
