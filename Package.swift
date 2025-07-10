@@ -8,6 +8,11 @@ let package = Package(
         .library(name: "BNDocumentScanner", targets: ["BNDocumentScanner"]),
     ],
     targets: [
-        .target(name: "BNDocumentScanner"),
+        .target(
+            name: "BNDocumentScanner",
+            resources: [
+                .process("Assets.xcassets")
+            ]
+        ),
     ]
 )

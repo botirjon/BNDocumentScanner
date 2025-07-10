@@ -45,9 +45,9 @@ public final class IDCardMaskView: UIView, DocumentMaskView {
     private static func maskImage(for side: DocumentSide) -> UIImage? {
         switch side {
         case .front:
-            UIImage(named: "img.id-card-mask.front", in: Bundle(for: Self.self), with: nil)
+            UIImage(named: "img.id-card-mask.front", in: Bundle.documentScanner, with: nil)
         case .back:
-            UIImage(named: "img.id-card-mask.back", in: Bundle(for: Self.self), with: nil)
+            UIImage(named: "img.id-card-mask.back", in: Bundle.documentScanner, with: nil)
         }
     }
     

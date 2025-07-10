@@ -40,7 +40,7 @@ public final class PassportMaskView: UIView, DocumentMaskView {
     }
     
     private static var maskImage: UIImage? {
-        UIImage(named: "img.passport-mask")
+        UIImage(named: "img.passport-mask", in: Bundle.documentScanner, with: nil)
     }
     
     public func update(documentBounded: Bool) {
