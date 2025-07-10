@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "img.id-card-mask.front.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "img.passport-mask.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
